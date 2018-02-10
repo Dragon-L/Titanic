@@ -62,6 +62,7 @@ def map_sex_to_number(X_temp):
 
 
 def caculate_cost(Y, Y_train):
+    print('this is a test commit')
     loss = -(np.multiply(Y_train, np.log(Y)) + np.multiply(1 - Y_train, np.log(1 - Y)))
     cost = np.sum(loss) / Y.shape[1]
     return cost
