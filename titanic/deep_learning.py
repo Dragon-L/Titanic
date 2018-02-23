@@ -137,7 +137,7 @@ def predict(X, parameters, layers_len, activation):
     return Y_predict
 
 
-def training_parameters(X_train, Y_train, layer_dim, activation='relu', learning_rate=0.1, num_iterations=1000):
+def training_parameters(X_train, Y_train, layer_dim, activation='relu', learning_rate=0.1, num_iterations=150000):
 
     parameters = initialize_parameters(X_train, layer_dim)
     layers_len = len(layer_dim) - 1
