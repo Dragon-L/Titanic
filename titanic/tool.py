@@ -38,5 +38,7 @@ def calculate_precision_rate(Y_predict, Y):
     return precision_rate
 
 def save_to_csv(Y, csv_file_name):
-    index = np.array(range(892, 1310)).reshape()
-    np.savetxt(csv_file_name, Y, delimiter='\n', fmt='%i')
+    index = np.array(range(892, 1310)).reshape(1, 418)
+    result = np.concatenate((index, Y), axis=0)
+    result = np.transpose(result)
+    np.savetxt(csv_file_name, result, fmt='%i', header='PassengerId,Survived', comments='', delimiter=',')
