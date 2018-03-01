@@ -1,5 +1,6 @@
 import csv
 import numpy as np
+from titanic.tool import load_dict_from_pkl
 
 
 def initialize_parameters(X, layer_dim):
@@ -137,9 +138,7 @@ def predict(X, parameters, layers_len, activation):
     return Y_predict
 
 
-def training_parameters(X_train, Y_train, layer_dim, activation='relu', learning_rate=0.1, num_iterations=150000):
-
-    parameters = initialize_parameters(X_train, layer_dim)
+def training_parameters(X_train, Y_train, layer_dim, activation, parameters, learning_rate=0.1, num_iterations=100000):
     layers_len = len(layer_dim) - 1
 
     prev_cost = 10000
@@ -168,4 +167,5 @@ def training_parameters(X_train, Y_train, layer_dim, activation='relu', learning
             prev_cost = cost
 
     return parameters
+
 

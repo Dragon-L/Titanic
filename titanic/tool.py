@@ -1,5 +1,6 @@
 import numpy as np
 import csv
+import pickle
 
 def load_data(csv_file_name, useless_rows, survived_id = False):
     bias = 1 if survived_id == True else 0
@@ -32,7 +33,6 @@ def map_sex_to_number(X_temp):
 
 def calculate_precision_rate(Y_predict, Y):
     num_examples = Y.shape[1]
-    print(num_examples)
     Y_error = np.logical_xor(Y_predict, Y)
     precision_rate = 1.0 - np.sum(Y_error) / num_examples
     return precision_rate
@@ -42,3 +42,13 @@ def save_to_csv(Y, csv_file_name):
     result = np.concatenate((index, Y), axis=0)
     result = np.transpose(result)
     np.savetxt(csv_file_name, result, fmt='%i', header='PassengerId,Survived', comments='', delimiter=',')
+
+def save_dict_to_pkl(parameter, pkl_file_name):
+    f = open(pkl_file_name, 'wb')
+    pickle.dump(parameter, f)
+    f.close()
+
+def load_dict_from_pkl(pkl_file_name):
+    f = open(pkl_file_name, 'rb')
+    parameters = pickle.load(f)
+    return parameters
