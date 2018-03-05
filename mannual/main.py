@@ -1,6 +1,5 @@
-from titanic.tool import load_data, calculate_precision_rate, save_to_csv, save_dict_to_pkl, load_dict_from_pkl
-from titanic.deep_learning import training_parameters, predict, initialize_parameters
-
+from utils.tool import load_data, calculate_precision_rate, save_to_csv, save_dict_to_pkl, load_dict_from_pkl
+from mannual.deep_learning import training_parameters, predict
 
 USELESS_ROWS_FOR_TRAIN = [0, 1, 3, 8, 10]
 USELESS_ROWS_FOR_TEST = [0, 2, 7, 9]

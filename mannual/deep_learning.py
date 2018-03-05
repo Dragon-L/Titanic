@@ -1,6 +1,4 @@
-import csv
 import numpy as np
-from titanic.tool import load_dict_from_pkl
 
 
 def initialize_parameters(X, layer_dim):
