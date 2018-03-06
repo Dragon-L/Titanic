@@ -52,3 +52,7 @@ def load_dict_from_pkl(pkl_file_name):
     f = open(pkl_file_name, 'rb')
     parameters = pickle.load(f)
     return parameters
+
+
+if __name__ == "__main__":
+    pass
