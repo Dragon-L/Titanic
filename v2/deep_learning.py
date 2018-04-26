@@ -1,5 +1,4 @@
 import tensorflow as tf
-from mannual.deep_learning import initialize_parameters
 
 
 def initialize_parameters(layer_dim):
@@ -28,7 +27,8 @@ def compute_cost(Y_train, Zl):
     cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=labels))
     return cost
 
-def training_parameters(X_train, Y_train, layer_dim, activation, parameters_origin, learning_rate, num_iterations = 1000):
+
+def training_parameters(X_train, Y_train, layer_dim, activation, parameters_origin, learning_rate, num_iterations = 10000):
     X = tf.placeholder(tf.float32, shape=[layer_dim[0], None])
     Y = tf.placeholder(tf.float32, shape=[1, None])
     parameters = initialize_parameters(layer_dim)
