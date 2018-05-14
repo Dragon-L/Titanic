@@ -65,5 +65,7 @@ def data_preparation(file_name):
     embarked = pd.get_dummies(df['Embarked'], prefix='Embarked')
 
     train_x = pd.concat([pclass, sex, age, sibsp, parch, cabin, embarked], axis=1)
-    train_y = df.Survived
+    train_y = None
+    if 'Survived' in df.columns:
+        train_y = df.Survived
     return train_x, train_y
