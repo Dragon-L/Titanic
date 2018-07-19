@@ -17,7 +17,7 @@ def fill_missing_fare_with_average(df):
     return df
 
 
-def data_preparation(input_file, train_file, dev_file):
+def data_preparation(input_file):
     df = pd.read_csv(input_file)
 
     del df['PassengerId']
@@ -28,16 +28,10 @@ def data_preparation(input_file, train_file, dev_file):
     df = fill_missing_fare_with_average(df)
 
     df['Cabin'] = get_first_letter_and_set_N_when_value_is_nan(df)
-    train_df = df.iloc[:800, :]
-    dev_df = df.iloc[800:, :]
-    train_df.to_csv(train_file, index=False, header=False)
-    dev_df.to_csv(dev_file, index=False, header=False)
-    # print(df.describe())
-    # print(df.info())
+    return df
 
 
-def decode_line(row):
-    print(row)
+def decode_train_line(row):
     cols = tf.decode_csv(row, record_defaults=[[0], [3], ['male'], [22.0], [1], [0], [7.25], ['N'], ['S']])
     features = {
         'Pclass': cols[1],
@@ -53,24 +47,47 @@ def decode_line(row):
     return features, label
 
 
-def train_input_fn():
-    features, label = train_dataset.make_one_shot_iterator().get_next()
+def decode_test_line(row):
+    cols = tf.decode_csv(row, record_defaults=[[3], ['male'], [22.0], [1], [0], [7.25], ['N'], ['S']])
+    features = {
+        'Pclass': cols[0],
+        'Sex': cols[1],
+        'Age': cols[2],
+        'SibSp': cols[3],
+        'Parch': cols[4],
+        'Fare': cols[5],
+        'Cabin': cols[6],
+        'Embarked': cols[7]
+    }
+    return features
+
+
+def train_input_fn(dataset):
+    features, label = dataset.make_one_shot_iterator().get_next()
     return features, label
 
 
-def eval_input_fn():
-    features, label = dev_dataset.make_one_shot_iterator().get_next()
+def eval_input_fn(dataset):
+    features, label = dataset.make_one_shot_iterator().get_next()
     return features, label
 
 
-# def train_input_fun(x):
-#     dataset = tf.data.Dataset.from_tensor_slices(x)
-#     features = dataset.make_one_shot_iterator().get_next()
+def test_input_fn(dataset):
+    features = dataset.make_one_shot_iterator().get_next()
+    return features
 
 
 train_set = '../data/handled_train.csv'
 dev_set = '../data/handled_dev.csv'
-data_preparation('../data/train.csv', train_set, dev_set)
+test_set = '../data/handled_test.csv'
+submission_file = '../data/submission.csv'
+
+# train_df = data_preparation('../data/train.csv')
+# test_df = data_preparation('../data/test.csv')
+#
+# train_df.iloc[:800, :].to_csv(train_set, index=False, header=False)
+# train_df.iloc[800:, :].to_csv(dev_set, index=False, header=False)
+# test_df.to_csv(test_set, index=False, header=False)
 
 featcols = [
     tf.feature_column.numeric_column('Pclass'),
@@ -83,15 +100,24 @@ featcols = [
     tf.feature_column.indicator_column(tf.feature_column.categorical_column_with_vocabulary_list('Embarked', ['S', 'C', 'Q']))
 ]
 
-estimator = tf.estimator.DNNRegressor(hidden_units=[512, 256, 256, 128, 128, 64, 64, 32, 32], feature_columns=featcols, model_dir='../output/')
-train_dataset = tf.data.TextLineDataset(train_set).map(decode_line).batch(128)
-dev_dataset = tf.data.TextLineDataset(dev_set).map(decode_line).batch(32)
-train_spec = tf.estimator.TrainSpec(input_fn=train_input_fn, max_steps=200)
-eval_spec = tf.estimator.EvalSpec(input_fn=eval_input_fn, steps=20)
+estimator = tf.estimator.DNNRegressor(hidden_units=[512, 256, 256, 128, 128, 64, 64, 32, 32], feature_columns=featcols,
+                                      model_dir='../output/')
+train_dataset = tf.data.TextLineDataset(train_set).map(decode_train_line).shuffle(1000).batch(128)
+dev_dataset = tf.data.TextLineDataset(dev_set).map(decode_train_line).shuffle(1000).batch(32)
+test_dataset = tf.data.TextLineDataset(test_set).map(decode_test_line).batch(32)
+
+tf.summary.scalar('test_var', 1)
+train_spec = tf.estimator.TrainSpec(input_fn=lambda: train_input_fn(train_dataset), max_steps=2040)
+eval_spec = tf.estimator.EvalSpec(input_fn=lambda: eval_input_fn(dev_dataset), steps=20)
 tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
-estimator.predict()
 
+predictions = estimator.predict(input_fn=lambda: test_input_fn(test_dataset))
 
+result = np.array([])
+for pred in predictions:
+    result = np.append(result, pred['predictions'])
 
-
+result = np.where(result < 0.5, 0, 1)
+submission = pd.DataFrame(data=result, index=np.arange(892, 1310), columns=['Survived'])
+submission.to_csv(submission_file, index_label='PassengerId')
 
