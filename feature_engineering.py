@@ -15,6 +15,7 @@ def process_data(df, drop_columns):
 
     df['Sex'] = df['Sex'].map({'male': 0, 'female': 1})
     df['Age'] = df['Age'].fillna(df['Age'].mean()).astype(int)
+    df['Fare'] = df['Fare'].fillna(df['Fare'].mean())
     df['Cabin'] = df['Cabin'].map(fill_null_value).map(get_first_letter).map({'N': 0, 'C': 1, 'B': 2, 'D': 3,'E': 4,'A':5,'F':6,'G':7,'T':8})
     df['Embarked'] = df['Embarked'].map(fill_null_value).map({'S': 0, 'C': 1, 'Q': 2, 'N': 3})
 
@@ -31,6 +32,6 @@ test_data = process_data(original_test_data, DROP_COLUMNS)
 train_y = train_data['Survived']
 del train_data['Survived']
 train_x = train_data
-train_x.to_csv('./data/train_x.csv', index=False)
+train_x.to_csv('./data/train_x.csv', index=False, header=False)
 train_y.to_csv('./data/train_y.csv', index=False)
-test_data.to_csv('./data/test_x.csv', index=False)
+test_data.to_csv('./data/test_x.csv', index=False, header=False)
